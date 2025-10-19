@@ -1,0 +1,28 @@
+# Ignore environment files
+.env
+*.env
+
+# Ignore Python cache
+_pycache_/
+*.pyc
+
+# Ignore Unity temporary and build files
+/Library/
+/Temp/
+/Obj/
+/Build/
+/Logs/
+/UserSettings/
+/Packages/
+/ProjectSettings/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Python virtual envs
+.venv/
+venv/
+Backend/cv_engine/.venv/
+__pycache__/
+*.pyc

@@ -1,0 +1,12 @@
+frame_width: 640
+frame_height: 480
+detection:
+  choking_conf: 0.75
+  choking_conf: 0.50
+  bleeding_conf: 0.70
+  unresponsive_frames: 60
+websocket:
+  host: "localhost"
+  port: 8765
+logging:
+  level: "INFO"
