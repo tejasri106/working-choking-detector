@@ -5,5 +5,5 @@ from schemas import DetectionEvent
 cfg = yaml.safe_load(open("config.yaml"))
 print("✅ Config loaded:", cfg["detection"])
 
-event = DetectionEvent(type="choking", confidence=0.20, coords=(120, 200))
+event = DetectionEvent(type="choking", confidence=0.40, coords=(120, 200))
 print("✅ Sample event:", event.json())
