@@ -1,16 +1,16 @@
 import asyncio, cv2, json, websockets, yaml
-from detectors.unresponsive import detect_unresponsive
+from detectors.choking import detect_choking
 
 # Load config
 with open("config.yaml") as f:
     cfg = yaml.safe_load(f)
 
-SEND_INTERVAL = 0.7  # frame delay to stay smooth
+SEND_INTERVAL = 0.7  # smoother performance
 last_event_type = None
 
 async def send_events():
     uri = "ws://localhost:8765"
-    print("📡 Starting cardiac arrest detection stream...")
+    print("📡 Starting choking detection stream...")
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 360)
@@ -23,37 +23,37 @@ async def send_events():
     global last_event_type
 
     async with websockets.connect(uri) as ws:
-        still_frames = 0
+        choking_frames = 0
         while True:
             ret, frame = cap.read()
             if not ret:
                 print("❌ Frame capture failed.")
                 break
 
-            # Run unresponsive detector only
-            evt = detect_unresponsive(frame, cfg, frame_id)
+            # Run choking detector
+            evt = detect_choking(frame, cfg, frame_id)
 
             if evt:
-                still_frames += 1
+                choking_frames += 1
             else:
-                still_frames = 0
+                choking_frames = 0
 
-            # if still for long enough, trigger event
-            if still_frames > 30:  # ~20s at 0.7s/frame
+            # If choking persists for a few frames, trigger event
+            if choking_frames > 5:  # adjust threshold as needed
                 msg = json.dumps({
-                    "type": "cardiac_arrest",
-                    "confidence": 0.95,
+                    "type": "choking",
+                    "confidence": evt.confidence if evt else 0.9,
                     "frame_id": frame_id
                 })
                 await ws.send(msg)
-                print(f"📤 Sent cardiac arrest alert! {msg}")
-                still_frames = 0
+                print(f"📤 Sent choking alert! {msg}")
+                choking_frames = 0
 
-            # show feed
-            status = "Monitoring..." if not evt else "Still detected"
+            # Display feed
+            status = "Monitoring..." if not evt else "Choking detected"
             color = (0, 255, 0) if not evt else (0, 0, 255)
             cv2.putText(frame, status, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
-            cv2.imshow("CPR Detection Feed", frame)
+            cv2.imshow("Choking Detection Feed", frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
